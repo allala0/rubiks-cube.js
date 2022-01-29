@@ -18,11 +18,11 @@ var generate_cube = function(size){
     var cubie_color = 0x111111;
 
     var middle = Math.floor(size/2);
-    var spacing = 0.02;
+    var spacing = 0.00;
 
     if(size % 2 == 0){middle -= 0.5;};
-    var margin = 0.13;
-    var tile_height = 0.07;
+    var margin = 0.15;
+    var tile_height = 0.05;
     
     var cubies = [];
     var tiles = [];
