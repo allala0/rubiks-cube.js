@@ -1,33 +1,16 @@
 class Cube{
     constructor(size=3){
         this.size = size;
-        this.colors = [0x0000ff, 0xff0000, 0xffffff, 0x00ff00, 0xff5c00, 0xffff00];
+        this.colors = [0x0000ff, 0xffffff, 0xff5c00, 0x00ff00, 0xffff00, 0xff0000];
         this.cube = this.generate();
         this.model = this.generate_model();
-        this.adjust_tiles();
-        this.move_queue = this.random_moves(20);
-        
-        for(var i=this.move_queue.length-1; i>=0; i--){
-            
-            var direction = 0;
-            if(this.move_queue[i][2] == 0){direction = 1;}
-            this.move_queue.push([this.move_queue[i][0], this.move_queue[i][1], direction, this.move_queue[i][3]]);
-            
-        }
-        
         this.move_queue = [];
-        
-//        for(var i=0; i<this.move_queue.length; i++){
-//            console.log(this.move_queue[i]);
-//        }
-        
-//        this.move_queue = [ ['X', 0, 0], ['Z', 0, 0]];
-        
         this.current_move = null;
         this.current_layer_tiles = null;
         this.current_layer_cubies = null;
         this.step = null;
-
+        this.moves_executed = [];
+        this.last_solved = true;
     }
     
     generate(){
@@ -140,12 +123,12 @@ class Cube{
                 for(var j = 0; j<buffer[layer].length; j++){
                     for(var k = 0; k < buffer[layer][j].length; k++){
                         var e = buffer[layer][j][k];
-                        if(direction == 0){
+                        if(direction == 1){
                             [e[0], e[1], e[3], e[4]] = [e[4], e[0], e[1], e[3]]
                             this.cube[layer][k][buffer.length - 1 - j] = e
                         }
 
-                        else if(direction == 1){
+                        else if(direction == 0){
                             [e[4], e[0], e[1], e[3]] = [e[0], e[1], e[3], e[4]]
                             this.cube[layer][buffer.length - 1 - k][j] = e  
 
@@ -218,11 +201,14 @@ class Cube{
                     var cubies_row = []
                     for(var k = 0; k < this.cube[i][j].length; k++){
                         
-                        
+                        var c = Math.floor(Math.random()*16777215);
+//                        c =  (i * this.size * this.size * this.size + j * this.size * this.size + k * this.size) / (this.size * this.size * this.size) * 16777215;
+//                        if(i == this.size - 1 & j == this.size - 1 && k == this.size - 1){c = 0;}
                         
                         var tiles_cubie = [];
                         
-                        var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: 0x000000}));
+                        var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: 0x000000, transparent: true, opacity: 1}));
+//                        var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: c, transparent: true, opacity: 1}));
                         cubies_cubie.position.set((spacing + 1) * (i - middle), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle));
                         this.cubies_group.add(cubies_cubie);
 
@@ -230,33 +216,38 @@ class Cube{
                             var tile = null;
                             var position = null;
                             var tile_size = null;
-                            if(this.cube[i][j][k][l] == 0){
+                            if(this.cube[i][j][k][l] == null){
+                                
+                            }
+                            else if(l == 0){
                                 position = [(spacing + 1) * (i - middle), (spacing + 1) * (j - middle), -(spacing * (middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
                             }
-                            else if(this.cube[i][j][k][l] == 1){
-                                position = [-(spacing * (middle) + this.size/2), (spacing + 1) * (i - middle), (spacing + 1) * (k - middle)];
-                                tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
-                            }
-                            else if(this.cube[i][j][k][l] == 2){
-                                position = [(spacing + 1) * (j - middle), -(spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)];
+                            else if(l == 1){
+                                position = [(spacing + 1) * (i - middle), -(spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)]
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
                             }
-                            else if(this.cube[i][j][k][l] == 3){
+                            else if(l == 2){
+                                position = [(spacing * (middle) + this.size/2), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle)];
+                                tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
+                            }
+                            else if(l == 3){
                                 position = [(spacing + 1) * (i - middle), (spacing + 1) * (j - middle), (spacing * (middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
                             }
-                            else if(this.cube[i][j][k][l] == 4){
-                                position = [(spacing * (middle) + this.size/2), (spacing + 1) * (i - middle), (spacing + 1) * (k - middle)];
-                                tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
-                            }
-                            else if(this.cube[i][j][k][l] == 5){
-                                position = [(spacing + 1) * (j - middle), (spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)];
+                            else if(l == 4){
+                                position = [(spacing + 1) * (i - middle), (spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)];
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
+                            }
+                            else if(l == 5){
+                                position = [-(spacing * (middle) + this.size/2), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle)];
+                                tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
                             }
                                     
                             if(this.cube[i][j][k][l] != null){
-                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: this.colors[l]}));
+//                                position = [i, j, k];
+                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: this.colors[this.cube[i][j][k][l]]}));
+//                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: c}));
                                 tile.position.set(position[0], position[1], position[2]);
                       
                                 tile.castShadow = true;
@@ -292,7 +283,7 @@ class Cube{
         if(axis == 'Y'){
             for(var j = 0; j<this.cube[layer].length; j++){
                 for(var k = 0; k < this.cube[layer][j].length; k++){
-                    var f = this.cubies[j][this.cube.length - 1 - layer][k];
+                    var f = this.cubies[layer][j][k];
                     cubies_group.add(f);
                     var e = this.tiles[layer][j][k];
                     
@@ -317,7 +308,7 @@ class Cube{
         else if(axis == 'X'){
             for(var j = 0; j<this.cube.length; j++){
                 for(var k = 0; k < this.cube[j][layer].length; k++){
-                    var f = this.cubies[layer][j][k];
+                    var f = this.cubies[j][layer][k];
                     cubies_group.add(f);
                     var e = this.tiles[j][layer][k];
                     for(var l=0; l<e.length; l++){
@@ -474,12 +465,31 @@ class Cube{
 
     }
     
+    solved(){
+        var grid = [null, null, null, null, null, null];
+        for(var i=0; i<this.cube.length; i++){
+            for(var j=0; j<this.cube[i].length; j++){
+                for(var k=0; k<this.cube[i][j].length; k++){
+                    for(var l=0; l<this.cube[i][j][k].length; l++){
+                        if(this.cube[i][j][k][l] != null){
+                            if(grid[l] == null){
+                                grid[l] = this.cube[i][j][k][l]
+                            }
+                            else if(grid[l] != this.cube[i][j][k][l]){return false;}
+                        }
+                    }
+                }
+            }
+        }
+        return true;  
+    }
+    
     update(){
-        
-
+        if (this.solved() && !this.last_solved){console.log('Congratulations, you solved the cube!');}
+        this.last_solved = this.solved();
         
         if(this.current_layer_tiles && this.current_layer_cubies != null && this.current_move != null){
-            if(this.current_move[0] == 'X'){
+            if(this.current_move[0] == 'Y'){
                 this.current_layer_tiles.rotation.x += this.step; 
                 this.current_layer_cubies.rotation.x += this.step; 
                 if(Math.abs(this.current_layer_tiles.rotation.x) >= Math.abs(this.destination_angle)){
@@ -498,15 +508,16 @@ class Cube{
                         this.tiles_group.add(this.current_layer_tiles.children[0])
                     }
                     
-                    this.current_layer_tiles = null; 
-                    this.current_layer_cubies = null; 
-                    this.current_move = null; 
-                    this.destination_angle = null; 
-                    this.step = null; 
+                this.moves_executed.push(this.current_move);
+                this.current_layer_tiles = null; 
+                this.current_layer_cubies = null; 
+                this.current_move = null; 
+                this.destination_angle = null; 
+                this.step = null; 
 
                 }
             }
-            else if(this.current_move[0] == 'Y'){
+            else if(this.current_move[0] == 'X'){
                 this.current_layer_tiles.rotation.y += this.step; 
                 this.current_layer_cubies.rotation.y += this.step; 
                 if(Math.abs(this.current_layer_tiles.rotation.y) >= Math.abs(this.destination_angle)){
@@ -525,6 +536,7 @@ class Cube{
                         this.tiles_group.add(this.current_layer_tiles.children[0])
                     }
                     
+                    this.moves_executed.push(this.current_move);
                     this.current_layer_tiles = null; 
                     this.current_layer_cubies = null; 
                     this.current_move = null; 
@@ -535,7 +547,8 @@ class Cube{
             }
             else if(this.current_move[0] == 'Z'){
                 this.current_layer_tiles.rotation.z += this.step; 
-                this.current_layer_cubies.rotation.z += this.step;                 if(Math.abs(this.current_layer_tiles.rotation.z) >= Math.abs(this.destination_angle)){
+                this.current_layer_cubies.rotation.z += this.step;                 
+                if(Math.abs(this.current_layer_tiles.rotation.z) >= Math.abs(this.destination_angle)){
                     
                     var qty = 1;
                     if(this.current_move.length > 3){qty = this.current_move[3];}
@@ -551,18 +564,23 @@ class Cube{
                         this.tiles_group.add(this.current_layer_tiles.children[0])
                     }
                     
-                    
-                    this.current_layer_tiles = null; 
-                    this.current_layer_cubies = null; 
-                    this.current_move = null; 
-                    this.destination_angle = null; 
-                    this.step = null; 
+                this.moves_executed.push(this.current_move);
+                this.current_layer_tiles = null; 
+                this.current_layer_cubies = null; 
+                this.current_move = null; 
+                this.destination_angle = null; 
+                this.step = null; 
                 }
             }
+            
+//            this.moves_executed.push(this.current_move);
+            
+
+
         }
         
         if(this.move_queue.length > 0 && this.current_move == null && this.current_layer == null){
-            this.current_move = cube.move_queue.shift(0);
+            this.current_move = cube.move_queue.shift();
             var layer = this.get_layer(this.current_move[0], this.current_move[1]);
             this.current_layer_tiles = layer[0];
             this.current_layer_cubies = layer[1];
@@ -592,14 +610,39 @@ class Cube{
         
         return moves;
     }
+    
+    undo_moves(){
+        this.move_queue = [];
+        if(this.current_move != null){
+            var direction = 0;
+            if(this.current_move[2] == 0){direction = 1;}
+            this.move_queue.push([this.current_move[0], this.current_move[1], direction, this.current_move[3]]);
+        }
+        for(var i=this.moves_executed.length - 1; i>=0; i--){
+            var direction = 0;
+            if(this.moves_executed[i][2] == 0){direction = 1;}
+            this.move_queue.push([this.moves_executed[i][0], this.moves_executed[i][1], direction, this.moves_executed[i][3]]);
+        }
+//        for(var i=this.move_queue.length - 1; i>=0; i--){
+//            var direction = 0;
+//            if(this.move_queue[i][2] == 0){direction = 1;}
+//            this.move_queue.push([this.move_queue[i][0], this.move_queue[i][1], direction, this.move_queue[i][3]]);
+//        }
+    }
+    
+    scramble(){
+        this.move_queue = this.random_moves(30);        
+    }
+    
 }
     
 var scene = new THREE.Scene();
-var size = prompt();
-var cube = new Cube(size);
+//var size = prompt();
+var cube = new Cube(3);
 //cube.move('Y', 0, 0);
 
 var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 var renderer = new THREE.WebGLRenderer();
 
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -616,6 +659,8 @@ controls.minDistance = 1.5 * cube.size;
 controls.maxDistance = 3 * cube.size;
 controls.enableDamping = true;
 
+camera.position.x = -5;
+camera.position.y = 2.5;
 
 
 var lights = []
@@ -665,17 +710,55 @@ window.addEventListener('mousemove', function(event){
 
 var selectedCubie = null;
 var mouseDown = null;
+var index = null;
+var ray = null;
 
 window.addEventListener('mousedown', function(event){
+    raycaster.setFromCamera(mouse, camera);
+    ray = [{...raycaster.ray.direction}, {...raycaster.ray.origin}]
+//    console.log(camera.position);
+//    console.log(camera.rotation);
+//    console.log(camera);
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(cube.tiles_group.children);
-    if(intersects.length > 0){
+    const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
+    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
+    
+    var intersects = false;
+    
+    
+    if(intersects_cubies.length > 0){
+        
+        for(var i=0; i<cube.cubies.length; i++){
+            for(var j=0; j<cube.cubies[i].length; j++){
+                for(var k=0; k<cube.cubies[i][j].length; k++){
+                    if(cube.cubies[i][j][k] == intersects_cubies[0].object){
+                        index = [i, j, k];
+                        intersects = true;
+                    }
+                }
+            }
+        }
+    }
+    if(intersects_tiles.length > 0 && !intersects){
+        
+        for(var i=0; i<cube.tiles.length; i++){
+            for(var j=0; j<cube.tiles[i].length; j++){
+                for(var k=0; k<cube.tiles[i][j].length; k++){
+                    for(var l=0; l<cube.tiles[i][j][k].length; l++){
+                        if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
+                            index = [i, j, k];
+                            intersects = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-//        if(intersects[0]){}
+    if(intersects){
         controls.enableRotate = false;
-        selectedCubie = intersects[0].object;
-        mouseDown = {...mouse}
+        mouseDown = {...mouse};
     }
     else{
         controls.enableRotate = true;
@@ -685,34 +768,55 @@ window.addEventListener('mousedown', function(event){
 });
 
 window.addEventListener('mouseup', function(event){
-    if(selectedCubie != null){
+    if(index != null){
         raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(cube.cubies_group.children);
+        var direction = raycaster.ray.direction;
+        var origin = raycaster.ray.origin;
+        
+//        console.log(ray);
+//        console.log([direction, origin]);
+        
+        var delta = [ray[0]['x'] - direction['x'], ray[0]['y'] - direction['y'], ray[0]['z'] - direction['z']];
+        var camera_delta = [ray[1]['x'] - origin['x'], ray[1]['y'] - origin['y'], ray[1]['z'] - origin['z']];
+        var max = 0;
+        var max_index = 0;
+        for(var i=0; i<delta.length; i++){
+            if(Math.abs(delta[i]) > Math.abs(max)){max = delta[i]; max_index = i;}
+        }
+
+        cube.cubies[index[0]][index[1]][index[2]].material.color.setHex(0x000000);
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(cube.cubies_group.children);
     //    const intersects2 = raycaster.intersectObjects(cube[3].children);
         if(intersects.length > 0){
             controls.enableRotate = false;
-            selectedCubie = intersects[0].object;
         }
-
-        deltax = mouseDown.x - mouse.x;
-        deltay = mouseDown.y - mouse.y;
-        if(Math.abs(deltax) > Math.abs(deltay)){
-
-            if(mouseDown.x < mouse.x){
-                cube.move_queue.push(['Y', 0, 0])
-            }else if(mouseDown.x > mouse.x){
-                cube.move_queue.push(['Y', 0, 1])
-            }
-        }
-        else{
-
-            if(mouseDown.y > mouse.y){
-                cube.move_queue.push(['X', 0, 0])
-            }else if(mouseDown.y < mouse.y){
-                cube.move_queue.push(['X', 0, 1])
-            }
         
+        if(max_index == 2){
+
+            if(delta[max_index] - camera_delta[max_index] > 0){
+                cube.move_queue.push(['X', index[1], 0])
+            }else if(delta[max_index] - camera_delta[max_index] < 0){
+                cube.move_queue.push(['X', index[1], 1])
+            }
+        }
+        else if(max_index == 0){
+
+            if(delta[max_index] - camera_delta[max_index] > 0){
+                cube.move_queue.push(['Y', index[0], 1])
+            }else if(delta[max_index] - camera_delta[max_index] < 0){
+                cube.move_queue.push(['Y', index[0], 0])
+            }
     }
+        else if(max_index == 1){
+
+            if(delta[max_index] - camera_delta[max_index] > 0){
+                cube.move_queue.push(['Z', index[2], 0])
+            }else if(delta[max_index] - camera_delta[max_index] < 0){
+                cube.move_queue.push(['Z', index[2], 1])
+            }
+    }
+    index = null;
 }
 
     
@@ -724,11 +828,12 @@ window.addEventListener('mouseup', function(event){
 });
 
 var update = function(){
-
+    
+    
     cube.update();
     resetMaterials();
     hover();
-    
+//    
     for(var i = 0; i < cube.cube.length; i++){
         for(var j = 0; j < cube.cube[i].length; j++){
             for(var k = 0; k < cube.cube[i][j].length; k++){
@@ -750,6 +855,7 @@ var update = function(){
 function resetMaterials(){
     for(var i=0; i<cube.cubies_group.children.length; i++){
         cube.cubies_group.children[i].material.opacity = 1; 
+        cube.cubies_group.children[i].material.color.setHex(0x000000);
     }
     for(var i=0; i<cube.tiles_group.children.length; i++){
         cube.tiles_group.children[i].material.opacity = 1; 
@@ -769,13 +875,17 @@ function hover(){
             for(var k=0; k<cube.tiles[i][j].length; k++){
                 for(var l=0; l<cube.tiles[i][j][k].length; l++){
                     if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
-                        console.log(intersects_tiles[0]);
-                        cube.cubies[i][j][k].material.color.setHex(0xffffff);
+                        cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
                     }
                 }
             }
         }
     }
+        
+    }
+    if(intersects_cubies.length > 0){
+        
+        intersects_cubies[0].object.material.color.setHex(0xeeeeee);
         
     }
 //    if(intersects_cubies.length > 0){
