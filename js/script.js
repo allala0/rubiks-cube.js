@@ -580,15 +580,21 @@ class Cube{
         }
         
         if(this.move_queue.length > 0 && this.current_move == null && this.current_layer == null){
-            this.current_move = cube.move_queue.shift();
-            var layer = this.get_layer(this.current_move[0], this.current_move[1]);
-            this.current_layer_tiles = layer[0];
-            this.current_layer_cubies = layer[1];
-            var multiplier = 1;
-            if(this.current_move[2] == 1){multiplier = -1;}
-            if(this.current_move.length > 3){multiplier = multiplier * this.current_move[3];}
-            this.destination_angle = Math.PI / 2 * multiplier;
-            this.step = this.destination_angle / 10;
+            if(this.move_queue[0] == 'clear'){
+                this.moves_executed = [];
+                this.move_queue.shift();
+            }
+            else{
+                this.current_move = cube.move_queue.shift();
+                var layer = this.get_layer(this.current_move[0], this.current_move[1]);
+                this.current_layer_tiles = layer[0];
+                this.current_layer_cubies = layer[1];
+                var multiplier = 1;
+                if(this.current_move[2] == 1){multiplier = -1;}
+                if(this.current_move.length > 3){multiplier = multiplier * this.current_move[3];}
+                this.destination_angle = Math.PI / 2 * multiplier;
+                this.step = this.destination_angle / 10;
+            }
         }
     }
     
@@ -616,18 +622,23 @@ class Cube{
         if(this.current_move != null){
             var direction = 0;
             if(this.current_move[2] == 0){direction = 1;}
-            this.move_queue.push([this.current_move[0], this.current_move[1], direction, this.current_move[3]]);
+            var qty = 1;
+            if(this.current_move.length > 3){qty = this.current_move[3];}
+            this.move_queue.push([this.current_move[0], this.current_move[1], direction, qty]);
         }
         for(var i=this.moves_executed.length - 1; i>=0; i--){
             var direction = 0;
             if(this.moves_executed[i][2] == 0){direction = 1;}
-            this.move_queue.push([this.moves_executed[i][0], this.moves_executed[i][1], direction, this.moves_executed[i][3]]);
+            var qty = 1;
+            if(this.moves_executed[i].length > 3){qty =this.moves_executed[i][3];}
+            this.move_queue.push([this.moves_executed[i][0], this.moves_executed[i][1], direction, qty]);
         }
 //        for(var i=this.move_queue.length - 1; i>=0; i--){
 //            var direction = 0;
 //            if(this.move_queue[i][2] == 0){direction = 1;}
 //            this.move_queue.push([this.move_queue[i][0], this.move_queue[i][1], direction, this.move_queue[i][3]]);
 //        }
+        this.move_queue.push('clear');
     }
     
     scramble(){
