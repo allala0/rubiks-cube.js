@@ -670,9 +670,11 @@ controls.minDistance = 1.5 * cube.size;
 controls.maxDistance = 3 * cube.size;
 controls.enableDamping = true;
 
-camera.position.x = -5;
-camera.position.y = 2.5;
+camera.position.x = -15;
+camera.position.y = 5.5;
 
+
+show_axis();
 
 var lights = []
 
@@ -697,7 +699,36 @@ for(var i = 0; i < lights_properties.length; i++){
 //    helper.position.set(lights_properties[i][0], lights_properties[i][1], lights_properties[i][2]);
 //    scene.add(helper);
 }
+   
+function show_axis(){
     
+    
+    var x_axis = new THREE.Mesh(new THREE.BoxGeometry(10, 0.1, 0.1), new THREE.MeshPhongMaterial({color: 0xff0000, transparent: true, opacity: 1}));
+    var y_axis = new THREE.Mesh(new THREE.BoxGeometry(0.1, 10, 0.1), new THREE.MeshPhongMaterial({color: 0x00ff00, transparent: true, opacity: 1}));
+    var z_axis = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 10), new THREE.MeshPhongMaterial({color: 0x0000ff, transparent: true, opacity: 1}));
+
+    var x_axis_cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshPhongMaterial({color: 0xff0000, transparent: true, opacity: 1}));
+    var y_axis_cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshPhongMaterial({color: 0x00ff00, transparent: true, opacity: 1}));
+    var z_axis_cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshPhongMaterial({color: 0x0000ff, transparent: true, opacity: 1}));
+
+    x_axis_cone.position.x = 5;
+    x_axis_cone.rotation.z = -Math.PI / 2;
+
+    y_axis_cone.position.y = 5;
+
+    z_axis_cone.position.z = 5;
+    z_axis_cone.rotation.x = Math.PI / 2;
+
+    scene.add(x_axis);
+    scene.add(y_axis);
+    scene.add(z_axis);
+
+    scene.add(x_axis_cone);
+    scene.add(y_axis_cone);
+    scene.add(z_axis_cone);
+    
+}
+
 window.addEventListener('resize', function(){
     
     var width = window.innerWidth;
