@@ -15,7 +15,8 @@ Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 
 <a href='server.py'>server.py</a> is a simple server implementation made in Python3. 
 
-You can run it in terminal with ```server.py``` if you want to host it on localhost
+You can run it in terminal with ```server.py``` if you want to host it on localhost.
+
 If you want to specify ip and port use ```server.py ip:port``` ( you could provide only ip, in that case port 8080 will be used ).
 
 ## TODO
