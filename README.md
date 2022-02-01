@@ -9,7 +9,7 @@ After downloading this repo using ```git clone https://github.com/allala0/rubiks
 ## TODO
 
 - [x] **3d rubiks cube of any size**
-- [ ] **user control system**
+- [x] **cube user control system**
 
 ## License
 
