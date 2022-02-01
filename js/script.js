@@ -641,7 +641,7 @@ class Cube{
     
 var scene = new THREE.Scene();
 //var size = prompt();
-var cube = new Cube(9);
+var cube = new Cube(3);
 //cube.move('Y', 0, 0);
 
 var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -900,7 +900,7 @@ window.addEventListener('mouseup', function(event){
         var origin = raycaster.ray.origin;
         
         var delta = [ray[0]['x'] - direction['x'], ray[0]['y'] - direction['y'], ray[0]['z'] - direction['z']];
-        console.log(side)
+//        console.log(side)
         if(side == 'left'){
             d1 = delta[0];          
             d2 = delta[1];  
