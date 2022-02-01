@@ -6,7 +6,6 @@
 
 Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 
-
 ## How to use
 
 - Clone this repo with:  ```git clone https://github.com/allala0/rubiks-cube.js``` 
@@ -21,6 +20,7 @@ Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 - [ ] **Bug fixes - connect tiles with cubie faces in term of mouse click detection**
 - [ ] **Cube rotations function**
 - [ ] **Functions to make patterns on cube for example: checkers, cube in cube**
+- [ ] **Moves containing many layers at the same time in scramble**
 - [ ] **Reverse one move function**
 - [ ] **Rounded edges of cubie stickers**
 - [ ] **Support for phone user controls**
