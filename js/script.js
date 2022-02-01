@@ -11,6 +11,7 @@ class Cube{
         this.step = null;
         this.moves_executed = [];
         this.last_solved = true;
+        this.move_speed = 0.25;
     }
     
     generate(){
@@ -323,15 +324,6 @@ class Cube{
     }
     
     adjust_tiles(){
-    
-    
-        for(var i=0; i<this.cubies.length; i++){
-            for(var j=0; j<this.cubies[i].length; j++){
-                for(var k=0; k<this.cubies[i][j].length; k++){
-
-                }
-            }
-        }
 
         var left_colors = [];
         var front_colors = [];
@@ -593,7 +585,7 @@ class Cube{
                 if(this.current_move[2] == 1){multiplier = -1;}
                 if(this.current_move.length > 3){multiplier = multiplier * this.current_move[3];}
                 this.destination_angle = Math.PI / 2 * multiplier;
-                this.step = this.destination_angle / 10;
+                this.step = this.destination_angle * this.move_speed;
             }
         }
     }
@@ -642,14 +634,14 @@ class Cube{
     }
     
     scramble(){
-        this.move_queue = this.random_moves(30);        
+        this.move_queue = this.random_moves(this.size*this.size);        
     }
     
 }
     
 var scene = new THREE.Scene();
 //var size = prompt();
-var cube = new Cube(3);
+var cube = new Cube(9);
 //cube.move('Y', 0, 0);
 
 var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -668,13 +660,13 @@ controls.target.set(0, 0, 0);
 controls.enablePan = false;
 controls.minDistance = 1.5 * cube.size;
 controls.maxDistance = 3 * cube.size;
-controls.enableDamping = true;
+//controls.enableDamping = true;
 
-camera.position.x = -15;
-camera.position.y = 5.5;
+camera.position.x = - 2 * cube.size;
+camera.position.y = 1 * cube.size;
 
 
-show_axis();
+//var axis_group = show_axis();
 
 var lights = []
 
@@ -711,6 +703,8 @@ function show_axis(){
     var y_axis_cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshPhongMaterial({color: 0x00ff00, transparent: true, opacity: 1}));
     var z_axis_cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 8), new THREE.MeshPhongMaterial({color: 0x0000ff, transparent: true, opacity: 1}));
 
+    var group = new THREE.Group();
+    
     x_axis_cone.position.x = 5;
     x_axis_cone.rotation.z = -Math.PI / 2;
 
@@ -719,13 +713,17 @@ function show_axis(){
     z_axis_cone.position.z = 5;
     z_axis_cone.rotation.x = Math.PI / 2;
 
-    scene.add(x_axis);
-    scene.add(y_axis);
-    scene.add(z_axis);
+    group.add(x_axis);
+    group.add(y_axis);
+    group.add(z_axis);
 
-    scene.add(x_axis_cone);
-    scene.add(y_axis_cone);
-    scene.add(z_axis_cone);
+    group.add(x_axis_cone);
+    group.add(y_axis_cone);
+    group.add(z_axis_cone);
+    
+    scene.add(group);
+    
+    return group;
     
 }
 
@@ -754,20 +752,106 @@ var selectedCubie = null;
 var mouseDown = null;
 var index = null;
 var ray = null;
+var side = null;
 
 window.addEventListener('mousedown', function(event){
     raycaster.setFromCamera(mouse, camera);
     ray = [{...raycaster.ray.direction}, {...raycaster.ray.origin}]
+    
+    const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
+    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
+    
+    
+    if(intersects_tiles.length > 0){
+//        console.log(intersects_cubies[0].faceIndex);
+        
+        var left_tiles = [];
+        var front_tiles = [];
+        var down_tiles = [];
+        var right_tiles = [];
+        var up_tiles = [];
+        var back_tiles = [];
+
+        for(var i = 0; i < cube.cube.length; i++){
+            var left_tiles_row = []
+            for(var j = 0; j < cube.cube[i].length; j++){
+                left_tiles_row.push(cube.tiles[i][j][0][0]);
+                if(cube.tiles[i][j][0][0] == intersects_tiles[0].object){
+                    side = 'left';
+                    intersects = true;
+                }
+            }
+            left_tiles.push(left_tiles_row);
+        }
+
+        for(var i = 0; i < cube.cube.length; i++){
+            var right_tiles_row = []
+            for(var j = 0; j < cube.cube[i].length; j++){
+                right_tiles_row.push(cube.tiles[i][j][cube.cube.length - 1][3]);
+                if(cube.tiles[i][j][cube.cube.length - 1][3] == intersects_tiles[0].object){
+                    side = 'right';
+                    intersects = true;
+                }
+            }
+            right_tiles.push(right_tiles_row);
+        }
+
+        for(var i = 0; i < cube.cube.length; i++){
+            var down_tiles_row = []
+            for(var j = 0; j < cube.cube[i][0].length; j++){
+                down_tiles_row.push(cube.tiles[i][0][j][1]);
+                if(cube.tiles[i][0][j][1] == intersects_tiles[0].object){
+                    side = 'down';
+                    intersects = true;
+                }
+            }
+            down_tiles.push(down_tiles_row);
+        }
+
+       for(var i = 0; i < cube.cube.length; i++){
+            var up_tiles_row = []
+            for(var j = 0; j < cube.cube[i][cube.cube.length - 1].length; j++){
+                up_tiles_row.push(cube.tiles[i][cube.cube.length - 1][j][4]);
+                if(cube.tiles[i][cube.cube.length - 1][j][4] == intersects_tiles[0].object){
+                    side = 'up';
+                    intersects = true;
+                }
+            }
+            up_tiles.push(up_tiles_row);
+        }
+
+        for(var i = 0; i < cube.cube[0].length; i++){
+            var front_tiles_row = []
+            for(var j = 0; j < cube.cube[i].length; j++){
+                front_tiles_row.push(cube.tiles[0][i][j][5]);
+                if(cube.tiles[0][i][j][5] == intersects_tiles[0].object){
+                    side = 'front';
+                    intersects = true;
+                }
+            }
+            front_tiles.push(front_tiles_row);
+        }
+
+        for(var i = 0; i < cube.cube[cube.cube.length - 1].length; i++){
+            var back_tiles_row = []
+            for(var j = 0; j < cube.cube[i].length; j++){
+                back_tiles_row.push(cube.tiles[cube.cube.length - 1][i][j][2]);
+                if(cube.tiles[cube.cube.length - 1][i][j][2] == intersects_tiles[0].object){
+                    side = 'back';
+                    intersects = true;
+                }
+            }
+            back_tiles.push(back_tiles_row);
+        }
+
+    }
+    
+//    console.log(ray[0].x + ' ' + ray[0].y + ' ' + ray[0].z);
 //    console.log(camera.position);
 //    console.log(camera.rotation);
 //    console.log(camera);
 
-    raycaster.setFromCamera(mouse, camera);
-    const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
-    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
-    
-    var intersects = false;
-    
+    intersects = false;
     
     if(intersects_cubies.length > 0){
         
@@ -811,12 +895,139 @@ window.addEventListener('mousedown', function(event){
 
 window.addEventListener('mouseup', function(event){
     if(index != null){
-        raycaster.setFromCamera(mouse, camera);
+
         var direction = raycaster.ray.direction;
         var origin = raycaster.ray.origin;
         
-//        console.log(ray);
-//        console.log([direction, origin]);
+        var delta = [ray[0]['x'] - direction['x'], ray[0]['y'] - direction['y'], ray[0]['z'] - direction['z']];
+        console.log(side)
+        if(side == 'left'){
+            d1 = delta[0];          
+            d2 = delta[1];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['X', index[1], 0]);
+                }else{
+                    cube.move_queue.push(['X', index[1], 1]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['Y', index[0], 1]);
+                }else{
+                    cube.move_queue.push(['Y', index[0], 0]);
+                }
+            }
+            
+        }
+        else if(side == 'right'){
+            d1 = delta[0];          
+            d2 = delta[1];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['X', index[1], 1]);
+                }else{
+                    cube.move_queue.push(['X', index[1], 0]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['Y', index[0], 0]);
+                }else{
+                    cube.move_queue.push(['Y', index[0], 1]);
+                }
+            }
+        }
+        else if(side == 'down'){
+            
+            d1 = delta[0];          
+            d2 = delta[2];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['Z', index[2], 1]);
+                }else{
+                    cube.move_queue.push(['Z', index[2], 0]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['Y', index[0], 0]);
+                }else{
+                    cube.move_queue.push(['Y', index[0], 1]);
+                }
+            }
+            
+        }
+        else if(side == 'up'){
+            
+            d1 = delta[0];          
+            d2 = delta[2];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['Z', index[2], 0]);
+                }else{
+                    cube.move_queue.push(['Z', index[2], 1]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['Y', index[0], 1]);
+                }else{
+                    cube.move_queue.push(['Y', index[0], 0]);
+                }
+            }
+            
+        }
+        else if(side == 'front'){
+            
+            d1 = delta[1];          
+            d2 = delta[2];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['Z', index[2], 0]);
+                }else{
+                    cube.move_queue.push(['Z', index[2], 1]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['X', index[1], 1]);
+                }else{
+                    cube.move_queue.push(['X', index[1], 0]);
+                }
+            }
+            
+        }
+        else if(side == 'back'){
+            
+            d1 = delta[1];          
+            d2 = delta[2];  
+            
+            if(Math.abs(d1) > Math.abs(d2)){
+                if(d1 > 0){
+                    cube.move_queue.push(['Z', index[2], 1]);
+                }else{
+                    cube.move_queue.push(['Z', index[2], 0]);
+                }
+            }
+            else if(Math.abs(d1) < Math.abs(d2)){
+                if(d2 > 0){
+                    cube.move_queue.push(['X', index[1], 0]);
+                }else{
+                    cube.move_queue.push(['X', index[1], 1]);
+                }
+            }
+            
+        }
+        
+        raycaster.setFromCamera(mouse, camera);
+        
+
         
         var delta = [ray[0]['x'] - direction['x'], ray[0]['y'] - direction['y'], ray[0]['z'] - direction['z']];
         var camera_delta = [ray[1]['x'] - origin['x'], ray[1]['y'] - origin['y'], ray[1]['z'] - origin['z']];
@@ -834,30 +1045,30 @@ window.addEventListener('mouseup', function(event){
             controls.enableRotate = false;
         }
         
-        if(max_index == 2){
-
-            if(delta[max_index] - camera_delta[max_index] > 0){
-                cube.move_queue.push(['X', index[1], 0])
-            }else if(delta[max_index] - camera_delta[max_index] < 0){
-                cube.move_queue.push(['X', index[1], 1])
-            }
-        }
-        else if(max_index == 0){
-
-            if(delta[max_index] - camera_delta[max_index] > 0){
-                cube.move_queue.push(['Y', index[0], 1])
-            }else if(delta[max_index] - camera_delta[max_index] < 0){
-                cube.move_queue.push(['Y', index[0], 0])
-            }
-    }
-        else if(max_index == 1){
-
-            if(delta[max_index] - camera_delta[max_index] > 0){
-                cube.move_queue.push(['Z', index[2], 0])
-            }else if(delta[max_index] - camera_delta[max_index] < 0){
-                cube.move_queue.push(['Z', index[2], 1])
-            }
-    }
+//        if(max_index == 2){
+//
+//            if(delta[max_index] - camera_delta[max_index] > 0){
+//                cube.move_queue.push(['X', index[1], 0])
+//            }else if(delta[max_index] - camera_delta[max_index] < 0){
+//                cube.move_queue.push(['X', index[1], 1])
+//            }
+//        }
+//        else if(max_index == 0){
+//
+//            if(delta[max_index] - camera_delta[max_index] > 0){
+//                cube.move_queue.push(['Y', index[0], 1])
+//            }else if(delta[max_index] - camera_delta[max_index] < 0){
+//                cube.move_queue.push(['Y', index[0], 0])
+//            }
+//    }
+//        else if(max_index == 1){
+//
+//            if(delta[max_index] - camera_delta[max_index] > 0){
+//                cube.move_queue.push(['Z', index[2], 0])
+//            }else if(delta[max_index] - camera_delta[max_index] < 0){
+//                cube.move_queue.push(['Z', index[2], 1])
+//            }
+//    }
     index = null;
 }
 
@@ -871,6 +1082,12 @@ window.addEventListener('mouseup', function(event){
 
 var update = function(){
     
+//    axis_group.rotation.x = camera.rotation.x;
+//    axis_group.rotation.y = camera.rotation.y;
+//    axis_group.rotation.z = camera.rotation.z;
+
+    
+//    console.log(camera.rotation.x + ' ' + camera.rotation.y + ' ' + camera.rotation.z);
     
     cube.update();
     resetMaterials();
@@ -892,6 +1109,7 @@ var update = function(){
     }
 
     controls.update();
+    
 
 };
 function resetMaterials(){
@@ -904,31 +1122,37 @@ function resetMaterials(){
     }
 }
 function hover(){
-    
+    var intersects = false;
     raycaster.setFromCamera(mouse, camera);
     const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
     const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
-    if(intersects_tiles.length > 0){
-//        intersects_tiles[0].object.material.transparent = true;
-//        intersects_tiles[0].object.material.opacity = 0.5;
+    if(intersects_cubies.length > 0){
         
-    for(var i=0; i<cube.tiles.length; i++){
-        for(var j=0; j<cube.tiles[i].length; j++){
-            for(var k=0; k<cube.tiles[i][j].length; k++){
-                for(var l=0; l<cube.tiles[i][j][k].length; l++){
-                    if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
-                        cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
+        for(var i=0; i<cube.cubies.length; i++){
+            for(var j=0; j<cube.cubies[i].length; j++){
+                for(var k=0; k<cube.cubies[i][j].length; k++){
+                    if(cube.cubies[i][j][k] == intersects_cubies[0].object){
+                            cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
+                        intersects = true;
                     }
                 }
             }
         }
     }
+    if(intersects_tiles.length > 0 && !intersects){
         
-    }
-    if(intersects_cubies.length > 0){
-        
-        intersects_cubies[0].object.material.color.setHex(0xeeeeee);
-        
+        for(var i=0; i<cube.tiles.length; i++){
+            for(var j=0; j<cube.tiles[i].length; j++){
+                for(var k=0; k<cube.tiles[i][j].length; k++){
+                    for(var l=0; l<cube.tiles[i][j][k].length; l++){
+                        if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
+                            cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
+                            intersects = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 //    if(intersects_cubies.length > 0){
 //        intersects_cubies[0].object.material.transparent = true;
