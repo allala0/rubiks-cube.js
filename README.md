@@ -27,14 +27,14 @@ Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 - [ ] **Timer**
 - [ ] **Solve stats (time, number of moves, replay)**
 - Different types of cubes: 
-    - [ ] **Mirror cube**
-    - [ ] **Pyraminx**
-    - [ ] **Skweb**
-    - [ ] **Megaminx**
-    - [ ] **Square-1**
-    - [ ] **3x3x2, 3x3x1, 2x2x1**
-    - [ ] **3x3x1**
-    - [ ] **2x2x1**
+- [ ] **Mirror cube**
+- [ ] **Pyraminx**
+- [ ] **Skweb**
+- [ ] **Megaminx**
+- [ ] **Square-1**
+- [ ] **3x3x2, 3x3x1, 2x2x1**
+- [ ] **3x3x1**
+- [ ] **2x2x1**
 
 ## License
 
