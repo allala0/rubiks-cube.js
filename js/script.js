@@ -11,7 +11,7 @@ class Cube{
         this.step = null;
         this.moves_executed = [];
         this.last_solved = true;
-        this.move_speed = 0.25;
+        this.move_speed = 0.2;
     }
     
     generate(){
@@ -640,8 +640,8 @@ class Cube{
 }
     
 var scene = new THREE.Scene();
-//var size = prompt();
-var cube = new Cube(3);
+var size = prompt('What size of cube? ( 2 or more )');
+var cube = new Cube(size);
 //cube.move('Y', 0, 0);
 
 var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1077,6 +1077,16 @@ window.addEventListener('mouseup', function(event){
     selectedCubie = null;
     controls.enableRotate = true;
 
+    
+});
+
+document.addEventListener('keypress', function(key){
+    if(key.code == 'KeyQ'){
+        cube.scramble();
+    }
+    else if(key.code == 'KeyW'){
+        cube.undo_moves();
+    }
     
 });
 
