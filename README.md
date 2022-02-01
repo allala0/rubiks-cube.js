@@ -26,7 +26,6 @@ Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 - [ ] **Support for phone user controls**
 - [ ] **Timer**
 - [ ] **Solve stats (time, number of moves, replay)**
-- Different types of cubes: 
 - [ ] **Mirror cube**
 - [ ] **Pyraminx**
 - [ ] **Skweb**
