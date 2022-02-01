@@ -10,6 +10,9 @@ After downloading this repo using ```git clone https://github.com/allala0/rubiks
 
 - [x] **3d rubiks cube of any size**
 - [x] **cube user control system**
+- [x] **scramble function**
+- [x] **unscramble function**
+- [ ] **cube rotations**
 
 ## License
 
