@@ -9,7 +9,13 @@ Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
 ## How to use
 
 - Clone this repo with:  ```git clone https://github.com/allala0/rubiks-cube.js``` 
-- Run this repo code on server, can be local server for example: XAMPP or you can run server in Python.
+- Run this repo code on server ( You can use <a href='server.py'>server.py</a> to run it. )
+
+## Server
+
+<a href='server.py'>server.py</a> is a simple server implementation made in Python3. 
+
+You can run it in terminal with ```server.py``` if you want to host it on localhost or you can use ```server.py ip:port``` to specify ip and port ( you could provide only ip, in that case port 8080 will be used ).
 
 ## TODO
 
