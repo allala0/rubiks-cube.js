@@ -1,9 +1,4 @@
-import {
-	BoxGeometry,
-	Vector3
-} from '../../../build/three.module.js';
-
-const _tempNormal = new Vector3();
+const _tempNormal = new THREE.Vector3();
 
 function getUv( faceDirVector, normal, uvAxis, projectionAxis, radius, sideLength ) {
 
@@ -38,7 +33,7 @@ function getUv( faceDirVector, normal, uvAxis, projectionAxis, radius, sideLengt
 
 }
 
-class RoundedBoxGeometry extends BoxGeometry {
+class RoundedBoxGeometry extends THREE.BoxGeometry {
 
 	constructor( width = 1, height = 1, depth = 1, segments = 2, radius = 0.1 ) {
 
@@ -62,17 +57,17 @@ class RoundedBoxGeometry extends BoxGeometry {
 
 		//
 
-		const position = new Vector3();
-		const normal = new Vector3();
+		const position = new THREE.Vector3();
+		const normal = new THREE.Vector3();
 
-		const box = new Vector3( width, height, depth ).divideScalar( 2 ).subScalar( radius );
+		const box = new THREE.Vector3( width, height, depth ).divideScalar( 2 ).subScalar( radius );
 
 		const positions = this.attributes.position.array;
 		const normals = this.attributes.normal.array;
 		const uvs = this.attributes.uv.array;
 
 		const faceTris = positions.length / 6;
-		const faceDirVector = new Vector3();
+		const faceDirVector = new THREE.Vector3();
 		const halfSegmentSize = 0.5 / segments;
 
 		for ( let i = 0, j = 0; i < positions.length; i += 3, j += 2 ) {
@@ -151,5 +146,3 @@ class RoundedBoxGeometry extends BoxGeometry {
 	}
 
 }
-
-export { RoundedBoxGeometry };

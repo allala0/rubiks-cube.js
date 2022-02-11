@@ -1,5 +1,11 @@
+//import { RoundedBoxGeometry } from 'data:RoundedBoxGeometry.js';
+
+
 class Cube{
     constructor(size=3){
+        
+        this.opacity = 1;
+        
         this.size = size;
         this.colors = [0x0000ff, 0xffffff, 0xff5c00, 0x00ff00, 0xffff00, 0xff0000];
         this.cube = this.generate();
@@ -11,7 +17,8 @@ class Cube{
         this.step = null;
         this.moves_executed = [];
         this.last_solved = true;
-        this.move_speed = 0.2;
+        this.move_speed = 0.1337;
+//        this.move_speed = 1;
     }
     
     generate(){
@@ -180,10 +187,10 @@ class Cube{
         var cubie_size = 1;
         var cubie_color = 0x111111;
 
-        var middle = Math.floor(this.size/2);
+        this.middle = Math.floor(this.size/2);
         var spacing = 0.00;
 
-        if(this.size % 2 == 0){middle -= 0.5;};
+        if(this.size % 2 == 0){this.middle -= 0.5;};
         var margin = 0.15;
         var tile_height = 0.05;
         
@@ -202,16 +209,8 @@ class Cube{
                     var cubies_row = []
                     for(var k = 0; k < this.cube[i][j].length; k++){
                         
-                        var c = Math.floor(Math.random()*16777215);
-//                        c =  (i * this.size * this.size * this.size + j * this.size * this.size + k * this.size) / (this.size * this.size * this.size) * 16777215;
-//                        if(i == this.size - 1 & j == this.size - 1 && k == this.size - 1){c = 0;}
                         
                         var tiles_cubie = [];
-                        
-                        var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: 0x000000, transparent: true, opacity: 1}));
-//                        var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: c, transparent: true, opacity: 1}));
-                        cubies_cubie.position.set((spacing + 1) * (i - middle), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle));
-                        this.cubies_group.add(cubies_cubie);
 
                         for(var l = 0; l < this.cube[i][j][k].length; l++){
                             var tile = null;
@@ -221,46 +220,61 @@ class Cube{
                                 
                             }
                             else if(l == 0){
-                                position = [(spacing + 1) * (i - middle), (spacing + 1) * (j - middle), -(spacing * (middle) + this.size/2)];
+                                position = [(spacing + 1) * (i - this.middle), (spacing + 1) * (j - this.middle), -(spacing * (this.middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
                             }
                             else if(l == 1){
-                                position = [(spacing + 1) * (i - middle), -(spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)]
+                                position = [(spacing + 1) * (i - this.middle), -(spacing * (this.middle) + this.size/2), (spacing + 1) * (k - this.middle)]
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
                             }
                             else if(l == 2){
-                                position = [(spacing * (middle) + this.size/2), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle)];
+                                position = [(spacing * (this.middle) + this.size/2), (spacing + 1) * (j - this.middle), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
                             }
                             else if(l == 3){
-                                position = [(spacing + 1) * (i - middle), (spacing + 1) * (j - middle), (spacing * (middle) + this.size/2)];
+                                position = [(spacing + 1) * (i - this.middle), (spacing + 1) * (j - this.middle), (spacing * (this.middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
                             }
                             else if(l == 4){
-                                position = [(spacing + 1) * (i - middle), (spacing * (middle) + this.size/2), (spacing + 1) * (k - middle)];
+                                position = [(spacing + 1) * (i - this.middle), (spacing * (this.middle) + this.size/2), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
                             }
                             else if(l == 5){
-                                position = [-(spacing * (middle) + this.size/2), (spacing + 1) * (j - middle), (spacing + 1) * (k - middle)];
+                                position = [-(spacing * (this.middle) + this.size/2), (spacing + 1) * (j - this.middle), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
                             }
                                     
                             if(this.cube[i][j][k][l] != null){
 //                                position = [i, j, k];
-                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: this.colors[this.cube[i][j][k][l]]}));
+                                tile = new THREE.Mesh(new RoundedBoxGeometry(tile_size[0], tile_size[1], tile_size[2], 2, 1), new THREE.MeshPhongMaterial({color: this.colors[this.cube[i][j][k][l]], transparent: true, opacity: this.opacity}));
 //                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: c}));
                                 tile.position.set(position[0], position[1], position[2]);
                       
                                 tile.castShadow = true;
                                 tile.receiveShadow = true;
                                 this.tiles_group.add(tile);
-                            }
-
+                            }                            
                             
                             tiles_cubie.push(tile);
                             
 //                            cubies_cubie.push(tile);
                         }
+                        var cubies_cubie = null;
+                        var all_null = true;
+                        
+                        for(var m=0; m<tiles_cubie.length; m++){
+                            if(tiles_cubie[m] != null){
+                                all_null = false;
+                            }
+                        }
+                        if(!all_null){
+                            cubies_cubie = new THREE.Mesh(new RoundedBoxGeometry(cubie_size, cubie_size, cubie_size, 1, 0.05), new THREE.MeshPhongMaterial({color: 0x000000, transparent: true, opacity: this.opacity}));
+//                          var cubies_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: c, transparent: true, opacity: 1}));
+                            cubies_cubie.position.set((spacing + 1) * (i - this.middle), (spacing + 1) * (j - this.middle), (spacing + 1) * (k - this.middle));
+                            this.cubies_group.add(cubies_cubie);
+
+                        }
+                        
                         tiles_row.push(tiles_cubie);
                         cubies_row.push(cubies_cubie);
                     }
@@ -273,21 +287,33 @@ class Cube{
             }
     scene.add(this.tiles_group);
     scene.add(this.cubies_group);
-                
+        
+    this.inner_cubies_group = new THREE.Group();
+    this.inner_cubies = [];
+        
+    for(var i=0; i<(size-2)*(size-2); i++){
+        var inner_cubie = new THREE.Mesh(new THREE.BoxGeometry(cubie_size, cubie_size, cubie_size), new THREE.MeshPhongMaterial({color: 0x000000}));
+        inner_cubie.position.set(0, 0, 0);
+        this.inner_cubies_group.add(inner_cubie);
+        this.inner_cubies.push(inner_cubie);
+
+    }
+     scene.add(this.inner_cubies_group);      
     }
     
     get_layer(axis, layer){
-        
         var tiles_group = new THREE.Group();
         var cubies_group = new THREE.Group();
+        
+        var inner_cubie_index = 0;
         
         if(axis == 'Y'){
             for(var j = 0; j<this.cube[layer].length; j++){
                 for(var k = 0; k < this.cube[layer][j].length; k++){
                     var f = this.cubies[layer][j][k];
-                    cubies_group.add(f);
+                    if(f != null){cubies_group.add(f);}
+                    else{this.inner_cubies[inner_cubie_index].position.set(layer - this.middle, j - this.middle, k - this.middle);cubies_group.add(this.inner_cubies[inner_cubie_index]);inner_cubie_index += 1;}
                     var e = this.tiles[layer][j][k];
-                    
                     for(var l=0; l<e.length; l++){
                         if(e[l] != null){tiles_group.add(e[l]);}
                     }
@@ -298,7 +324,8 @@ class Cube{
             for(var j = 0; j<this.cube.length; j++){
                 for(var k = 0; k < this.cube[j].length; k++){
                     var f = this.cubies[j][k][layer];
-                    cubies_group.add(f);
+                    if(f != null){cubies_group.add(f);}
+                    else{this.inner_cubies[inner_cubie_index].position.set(j - this.middle, k - this.middle, layer - this.middle);cubies_group.add(this.inner_cubies[inner_cubie_index]);inner_cubie_index += 1;}
                     var e = this.tiles[j][k][layer];
                     for(var l=0; l<e.length; l++){
                         if(e[l] != null){tiles_group.add(e[l]);}
@@ -310,7 +337,8 @@ class Cube{
             for(var j = 0; j<this.cube.length; j++){
                 for(var k = 0; k < this.cube[j][layer].length; k++){
                     var f = this.cubies[j][layer][k];
-                    cubies_group.add(f);
+                    if(f != null){cubies_group.add(f);}
+                    else{this.inner_cubies[inner_cubie_index].position.set(j - this.middle, layer - this.middle, k - this.middle);cubies_group.add(this.inner_cubies[inner_cubie_index]);inner_cubie_index += 1;}
                     var e = this.tiles[j][layer][k];
                     for(var l=0; l<e.length; l++){
                         if(e[l] != null){tiles_group.add(e[l]);}
@@ -321,140 +349,6 @@ class Cube{
         scene.add(tiles_group);
         scene.add(cubies_group);
         return [tiles_group, cubies_group];
-    }
-    
-    adjust_tiles(){
-
-        var left_colors = [];
-        var front_colors = [];
-        var down_colors = [];
-        var right_colors = [];
-        var up_colors = [];
-        var back_colors = [];
-
-        var left_tiles = [];
-        var front_tiles = [];
-        var down_tiles = [];
-        var right_tiles = [];
-        var up_tiles = [];
-        var back_tiles = [];
-
-        var left_tiles_positions = [];
-        var front_tiles_positions = [];
-        var down_tiles_positions = [];
-        var right_tiles_positions = [];
-        var up_tiles_positions = [];
-        var back_tiles_positions = [];
-
-        for(var i = 0; i < this.cube.length; i++){
-            var right_colors_row = []
-            var right_tiles_row = []
-            var right_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i].length; j++){
-                right_colors_row.push(this.cube[i][j][0][0]);
-                right_tiles_row.push(this.tiles[i][j][0][0]);
-                right_tiles_positions_row.push({...this.tiles[i][j][0][0].position});
-            }
-            right_colors.push(right_colors_row)
-            right_tiles.push(right_tiles_row)
-            right_tiles_positions.push(right_tiles_positions_row)
-        }
-
-        for(var i = 0; i < this.cube.length; i++){
-            var left_colors_row = []
-            var left_tiles_row = []
-            var left_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i].length; j++){
-                left_colors_row.push(this.cube[i][j][this.cube.length - 1][3]);
-                left_tiles_row.push(this.tiles[i][j][this.cube.length - 1][3]);
-                left_tiles_positions_row.push({...this.tiles[i][j][this.cube.length - 1][3].position});
-            }
-            left_colors.push(left_colors_row)
-            left_tiles.push(left_tiles_row)
-            left_tiles_positions.push(left_tiles_positions_row)
-        }
-
-        for(var i = 0; i < this.cube.length; i++){
-            var front_colors_row = []
-            var front_tiles_row = []
-            var front_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i][0].length; j++){
-                front_colors_row.push(this.cube[i][0][j][1]);
-                front_tiles_row.push(this.tiles[i][0][j][1]);
-                front_tiles_positions_row.push({...this.tiles[i][0][j][1].position});
-            }
-            front_colors.push(front_colors_row)
-            front_tiles.push(front_tiles_row)
-            front_tiles_positions.push(front_tiles_positions_row)
-        }
-
-       for(var i = 0; i < this.cube.length; i++){
-            var back_colors_row = []
-            var back_tiles_row = []
-            var back_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i][this.cube.length - 1].length; j++){
-                back_colors_row.push(this.cube[i][this.cube.length - 1][j][4]);
-                back_tiles_row.push(this.tiles[i][this.cube.length - 1][j][4]);
-                back_tiles_positions_row.push({...this.tiles[i][this.cube.length - 1][j][4].position});
-            }
-            back_colors.push(back_colors_row)
-            back_tiles.push(back_tiles_row)
-            back_tiles_positions.push(back_tiles_positions_row)
-        }
-
-        for(var i = 0; i < this.cube[0].length; i++){
-            var up_colors_row = []
-            var up_tiles_row = []
-            var up_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i].length; j++){
-                up_colors_row.push(this.cube[0][i][j][5]);
-                up_tiles_row.push(this.tiles[0][i][j][5]);
-                up_tiles_positions_row.push({...this.tiles[0][i][j][5].position});
-            }
-            up_colors.push(up_colors_row)
-            up_tiles.push(up_tiles_row)
-            up_tiles_positions.push(up_tiles_positions_row)
-        }
-
-        for(var i = 0; i < this.cube[this.cube.length - 1].length; i++){
-            var down_colors_row = []
-            var down_tiles_row = []
-            var down_tiles_positions_row = []
-            for(var j = 0; j < this.cube[i].length; j++){
-                down_colors_row.push(this.cube[this.cube.length - 1][i][j][2]);
-                down_tiles_row.push(this.tiles[this.cube.length - 1][i][j][2]);
-                down_tiles_positions_row.push({...this.tiles[this.cube.length - 1][i][j][2].position});
-            }
-            down_colors.push(down_colors_row)
-            down_tiles.push(down_tiles_row)
-            down_tiles_positions.push(down_tiles_positions_row)
-        }
-
-        for(var i = 0; i < left_tiles.length; i++){
-            for(var j = 0; j < left_tiles[i].length; j++){
-                left_tiles[left_tiles.length - 1 - i][j].position.x = left_tiles_positions[j][i]['x'];
-                left_tiles[left_tiles.length - 1 - i][j].position.y = left_tiles_positions[j][i]['y'];
-            }
-        }
-        for(var i = 0; i < right_tiles.length; i++){
-            for(var j = 0; j < right_tiles[i].length; j++){
-                right_tiles[right_tiles.length - 1 - i][j].position.x = right_tiles_positions[j][i]['x'];
-                right_tiles[right_tiles.length - 1 - i][j].position.y = right_tiles_positions[j][i]['y'];
-            }
-        }
-        for(var i = 0; i < front_tiles.length; i++){
-            for(var j = 0; j < front_tiles[i].length; j++){
-                front_tiles[i][j].position.z = front_tiles_positions[front_tiles.length - 1- i][j]['z'];
-                front_tiles[i][j].position.y = front_tiles_positions[front_tiles.length - 1- i][j]['y'];
-            }
-        }
-        for(var i = 0; i < back_tiles.length; i++){
-            for(var j = 0; j < back_tiles[i].length; j++){
-                back_tiles[i][j].position.z = back_tiles_positions[front_tiles.length - 1- i][j]['z'];
-                back_tiles[i][j].position.y = back_tiles_positions[front_tiles.length - 1- i][j]['y'];
-            }
-        }
-
     }
     
     solved(){
@@ -634,13 +528,14 @@ class Cube{
     }
     
     scramble(){
-        this.move_queue = this.random_moves(this.size*this.size);        
+        this.move_queue = this.random_moves(this.size*6);        
     }
     
 }
     
 var scene = new THREE.Scene();
-var size = prompt('What size of cube? ( 2 or more )');
+//var size = prompt('What size of cube? ( 2 or more )');
+var size = 10;
 var cube = new Cube(size);
 //cube.move('Y', 0, 0);
 
@@ -1124,11 +1019,11 @@ var update = function(){
 };
 function resetMaterials(){
     for(var i=0; i<cube.cubies_group.children.length; i++){
-        cube.cubies_group.children[i].material.opacity = 1; 
+//        cube.cubies_group.children[i].material.opacity = 1; 
         cube.cubies_group.children[i].material.color.setHex(0x000000);
     }
     for(var i=0; i<cube.tiles_group.children.length; i++){
-        cube.tiles_group.children[i].material.opacity = 1; 
+//        cube.tiles_group.children[i].material.opacity = 1; 
     }
 }
 function hover(){
