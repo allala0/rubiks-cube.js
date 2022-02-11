@@ -25,8 +25,8 @@ If you want to specify ip and port use ```server.py ip:port``` ( you could provi
 - [x] **Cube user control system**
 - [x] **Scramble function**
 - [x] **Unscramble function**
+- [x] **Optimalisation: don't create cubies that are not visable (inside cube)**
 - [ ] **Bug fixes - connect tiles with cubie faces in term of mouse click detection**
-- [ ] **Optimalisation: don't create cubies that are not visable (inside cube)**
 - [ ] **Cube rotations function**
 - [ ] **Functions to make patterns on cube for example: checkers, cube in cube**
 - [ ] **Moves containing many layers at the same time in scramble**
