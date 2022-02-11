@@ -1,6 +1,6 @@
 <h1 align="center">Rubiks Cube</h1>
 <p align="center">Rubiks cube of any size in browser.</p>
-<p align="center"><img src="img/cube.png" width=300 style/><img src="img/cube2.png" width=300 style="margin-left:40px;"/></p>
+<p align="center"><img src="img/cube.png" width=300 style/><p>test test test</p><img src="img/cube2.png" width=300 style="margin-left:40px;"/></p>
 
 ## Introduction
 
