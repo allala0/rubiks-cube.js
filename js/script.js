@@ -5,6 +5,11 @@ class Cube{
     constructor(size=3){
         
         this.opacity = 1;
+        this.color = 0xffffff;
+        this.select_color = 0xcccccc;
+        
+        this.color = 0x000000;
+        this.select_color = 0xeeeeee;
         
         this.size = size;
         this.colors = [0x0000ff, 0xffffff, 0xff5c00, 0x00ff00, 0xffff00, 0xff0000];
@@ -567,7 +572,7 @@ class Cube{
     
 var scene = new THREE.Scene();
 //var size = prompt('What size of cube? ( 2 or more )');
-var size = 3;
+var size = 20;
 var cube = new Cube(size);
 //cube.move('Y', 0, 0);
 
@@ -586,13 +591,16 @@ var controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.enablePan = false;
 controls.minDistance = 4.2 * cube.size;
+//controls.minDistance = 2.2 * cube.size;
 controls.maxDistance = 4.2 * cube.size;
 //controls.enableDamping = true;
 
-camera.position.x = - 2 * cube.size;
-camera.position.y = 1 * cube.size;
+//camera.position.x = - 2 * cube.size;
+//camera.position.y = 1 * cube.size;
 
-
+camera.position.x = -7.431142130785419;
+camera.position.y = 6.905612043117398;
+camera.position.z = -7.473329173937004;
 
 
 //const test_geometry = new THREE.BoxGeometry( 5, 5, 5 );
@@ -1013,7 +1021,7 @@ function mouse_up(event){
             if(Math.abs(delta[i]) > Math.abs(max)){max = delta[i]; max_index = i;}
         }
 
-        cube.cubies[index[0]][index[1]][index[2]].material.color.setHex(0x000000);
+        cube.cubies[index[0]][index[1]][index[2]].material.color.setHex(cube.color);
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(cube.tiles_hitboxes_group.children);
     //    const intersects2 = raycaster.intersectObjects(cube[3].children);
@@ -1051,6 +1059,8 @@ var update = function(){
     
 //    console.log(camera.rotation.x + ' ' + camera.rotation.y + ' ' + camera.rotation.z);
     
+    renderer.setClearColor(Math.floor(Math.random()*16777215));
+    
     cube.update();
     resetMaterials();
     hover();
@@ -1077,7 +1087,7 @@ var update = function(){
 function resetMaterials(){
     for(var i=0; i<cube.cubies_group.children.length; i++){
 //        cube.cubies_group.children[i].material.opacity = 1; 
-        cube.cubies_group.children[i].material.color.setHex(0x000000);
+        cube.cubies_group.children[i].material.color.setHex(cube.color);
     }
     for(var i=0; i<cube.tiles_group.children.length; i++){
 //        cube.tiles_group.children[i].material.opacity = 1; 
@@ -1095,7 +1105,7 @@ function hover(){
                 for(var k=0; k<cube.tiles_hitboxes[i][j].length; k++){
                     for(var l=0; l<cube.tiles_hitboxes[i][j][k].length; l++){
                         if(cube.tiles_hitboxes[i][j][k][l] == intersects_tiles_hitboxes[0].object){
-                            cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
+                            cube.cubies[i][j][k].material.color.setHex(cube.select_color);
                             intersects = true;
                         }
                     }
