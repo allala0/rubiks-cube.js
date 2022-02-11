@@ -17,7 +17,7 @@ class Cube{
         this.step = null;
         this.moves_executed = [];
         this.last_solved = true;
-        this.move_speed = 0.1337;
+        this.move_speed = 0.075;
 //        this.move_speed = 1;
     }
     
@@ -194,67 +194,88 @@ class Cube{
         var margin = 0.15;
         var tile_height = 0.05;
         
+         this.tiles_hitboxes = [];
          this.tiles = [];
          this.cubies = [];
         
+        this.tiles_hitboxes_group = new THREE.Group();
         this.tiles_group = new THREE.Group();
         this.cubies_group = new THREE.Group();
             
             for(var i = 0; i < this.cube.length; i++){
+                var tiles_hitboxes_layer = []
                 var tiles_layer = []
                 var cubies_layer = []
                 
                 for(var j = 0; j < this.cube[i].length; j++){
+                    var tiles_hitboxes_row = []
                     var tiles_row = []
                     var cubies_row = []
                     for(var k = 0; k < this.cube[i][j].length; k++){
                         
-                        
+                        var tiles_hitboxes_cubie = [];
                         var tiles_cubie = [];
 
                         for(var l = 0; l < this.cube[i][j][k].length; l++){
                             var tile = null;
+                            var tile_hitbox = null;
                             var position = null;
                             var tile_size = null;
+                            var hitbox_tile_size = null;
                             if(this.cube[i][j][k][l] == null){
                                 
                             }
                             else if(l == 0){
                                 position = [(spacing + 1) * (i - this.middle), (spacing + 1) * (j - this.middle), -(spacing * (this.middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
+                                
+                                hitbox_tile_size = [cubie_size, cubie_size , tile_height ];
                             }
                             else if(l == 1){
                                 position = [(spacing + 1) * (i - this.middle), -(spacing * (this.middle) + this.size/2), (spacing + 1) * (k - this.middle)]
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
+                                
+                                hitbox_tile_size = [ cubie_size, tile_height, cubie_size ];
                             }
                             else if(l == 2){
                                 position = [(spacing * (this.middle) + this.size/2), (spacing + 1) * (j - this.middle), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
+                                
+                                hitbox_tile_size = [ tile_height, cubie_size, cubie_size ];
                             }
                             else if(l == 3){
                                 position = [(spacing + 1) * (i - this.middle), (spacing + 1) * (j - this.middle), (spacing * (this.middle) + this.size/2)];
                                 tile_size = [cubie_size - margin, cubie_size - margin, tile_height];
+                                
+                                hitbox_tile_size = [cubie_size, cubie_size, tile_height ];
                             }
                             else if(l == 4){
                                 position = [(spacing + 1) * (i - this.middle), (spacing * (this.middle) + this.size/2), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ cubie_size - margin, tile_height, cubie_size - margin];
+                                
+                                hitbox_tile_size = [ cubie_size, tile_height, cubie_size ];
                             }
                             else if(l == 5){
                                 position = [-(spacing * (this.middle) + this.size/2), (spacing + 1) * (j - this.middle), (spacing + 1) * (k - this.middle)];
                                 tile_size = [ tile_height, cubie_size - margin, cubie_size - margin];
+                                
+                                hitbox_tile_size = [ tile_height, cubie_size, cubie_size ];
                             }
                                     
                             if(this.cube[i][j][k][l] != null){
-//                                position = [i, j, k];
                                 tile = new THREE.Mesh(new RoundedBoxGeometry(tile_size[0], tile_size[1], tile_size[2], 2, 1), new THREE.MeshPhongMaterial({color: this.colors[this.cube[i][j][k][l]], transparent: true, opacity: this.opacity}));
-//                                tile = new THREE.Mesh(new THREE.BoxGeometry(tile_size[0], tile_size[1], tile_size[2]), new THREE.MeshPhongMaterial({color: c}));
+                                tile_hitbox = new THREE.Mesh(new THREE.BoxGeometry(hitbox_tile_size[0], hitbox_tile_size[1], hitbox_tile_size[2]), new THREE.MeshPhongMaterial({}));
+                                tile_hitbox.visible = false;
                                 tile.position.set(position[0], position[1], position[2]);
+                                tile_hitbox.position.set(position[0], position[1], position[2]);
                       
                                 tile.castShadow = true;
                                 tile.receiveShadow = true;
                                 this.tiles_group.add(tile);
+                                this.tiles_hitboxes_group.add(tile_hitbox);
                             }                            
                             
+                            tiles_hitboxes_cubie.push(tile_hitbox);
                             tiles_cubie.push(tile);
                             
 //                            cubies_cubie.push(tile);
@@ -275,19 +296,23 @@ class Cube{
 
                         }
                         
+                        tiles_hitboxes_row.push(tiles_hitboxes_cubie);
                         tiles_row.push(tiles_cubie);
                         cubies_row.push(cubies_cubie);
                     }
+                    tiles_hitboxes_layer.push(tiles_hitboxes_row);
                     tiles_layer.push(tiles_row);
                     cubies_layer.push(cubies_row);
 
                 }
+                this.tiles_hitboxes.push(tiles_hitboxes_layer);
                 this.tiles.push(tiles_layer);
                 this.cubies.push(cubies_layer);
             }
+    scene.add(this.tiles_hitboxes_group);
     scene.add(this.tiles_group);
     scene.add(this.cubies_group);
-        
+
     this.inner_cubies_group = new THREE.Group();
     this.inner_cubies = [];
         
@@ -530,16 +555,23 @@ class Cube{
     scramble(){
         this.move_queue = this.random_moves(this.size*6);        
     }
+    rotate(axis){
+        
+        this.current_layer_tiles = this.tiles_group;
+        this.current_layer_cubies = this.cubies_group;
+        this.move_queue.push([axis, ])
+        
+    }
     
 }
     
 var scene = new THREE.Scene();
 //var size = prompt('What size of cube? ( 2 or more )');
-var size = 10;
+var size = 3;
 var cube = new Cube(size);
 //cube.move('Y', 0, 0);
 
-var camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 var renderer = new THREE.WebGLRenderer();
 
@@ -553,12 +585,24 @@ document.body.appendChild(renderer.domElement);
 var controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.enablePan = false;
-controls.minDistance = 1.5 * cube.size;
-controls.maxDistance = 3 * cube.size;
+controls.minDistance = 4.2 * cube.size;
+controls.maxDistance = 4.2 * cube.size;
 //controls.enableDamping = true;
 
 camera.position.x = - 2 * cube.size;
 camera.position.y = 1 * cube.size;
+
+
+
+
+//const test_geometry = new THREE.BoxGeometry( 5, 5, 5 );
+//const test_material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+//const test_cube = new THREE.Mesh( test_geometry, test_material );
+//
+//scene.add(test_cube);
+//
+//console.log(test_cube);
+
 
 
 //var axis_group = show_axis();
@@ -633,12 +677,15 @@ window.addEventListener('resize', function(){
 });
 
 var mouse = new THREE.Vector2();
+mouse.x = 1;
+mouse.y = 1;
 var raycaster = new THREE.Raycaster();
 
 window.addEventListener('mousemove', function(event){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    
+//    console.log(mouse);
+
     
     
 }, false);
@@ -649,17 +696,38 @@ var index = null;
 var ray = null;
 var side = null;
 
-window.addEventListener('mousedown', function(event){
+window.addEventListener('mousedown', mouse_down);
+window.addEventListener('mouseup', mouse_up);
+
+window.addEventListener('touchstart', function(e){
+    mouse.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (e.touches[0].clientY / window.innerHeight) * 2 + 1;
+//    console.log(mouse);
+//    console.log(e.touches[0].clientX);
+});
+window.addEventListener('touchend', function(e){
+    mouse.x = (e.changedTouches[0].clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (e.changedTouches[0].clientY / window.innerHeight) * 2 + 1;
+//    console.log(mouse);
+//    console.log(e.changedTouches[0].clientX);
+});
+
+window.addEventListener('touchstart', mouse_down);
+window.addEventListener('touchend', mouse_up);
+window.addEventListener('touchend', function(){mouse.x=1;mouse.y=1;});
+
+function mouse_down(event){
     raycaster.setFromCamera(mouse, camera);
     ray = [{...raycaster.ray.direction}, {...raycaster.ray.origin}]
     
-    const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
-    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
+    const intersects_tiles = raycaster.intersectObjects(cube.tiles_hitboxes_group.children);
+//    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
+    var intersects = false;
+
     
     
     if(intersects_tiles.length > 0){
 //        console.log(intersects_cubies[0].faceIndex);
-        
         var left_tiles = [];
         var front_tiles = [];
         var down_tiles = [];
@@ -668,24 +736,24 @@ window.addEventListener('mousedown', function(event){
         var back_tiles = [];
 
         for(var i = 0; i < cube.cube.length; i++){
-            var left_tiles_row = []
             for(var j = 0; j < cube.cube[i].length; j++){
-                left_tiles_row.push(cube.tiles[i][j][0][0]);
-                if(cube.tiles[i][j][0][0] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[i][j][0][0] == intersects_tiles[0].object){
                     side = 'left';
                     intersects = true;
+                    index = [i, j, 0];
+
                 }
             }
-            left_tiles.push(left_tiles_row);
         }
 
         for(var i = 0; i < cube.cube.length; i++){
             var right_tiles_row = []
             for(var j = 0; j < cube.cube[i].length; j++){
                 right_tiles_row.push(cube.tiles[i][j][cube.cube.length - 1][3]);
-                if(cube.tiles[i][j][cube.cube.length - 1][3] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[i][j][cube.cube.length - 1][3] == intersects_tiles[0].object){
                     side = 'right';
                     intersects = true;
+                    index = [i, j, cube.cube.length - 1];
                 }
             }
             right_tiles.push(right_tiles_row);
@@ -695,9 +763,10 @@ window.addEventListener('mousedown', function(event){
             var down_tiles_row = []
             for(var j = 0; j < cube.cube[i][0].length; j++){
                 down_tiles_row.push(cube.tiles[i][0][j][1]);
-                if(cube.tiles[i][0][j][1] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[i][0][j][1] == intersects_tiles[0].object){
                     side = 'down';
                     intersects = true;
+                    index = [i, 0, j];
                 }
             }
             down_tiles.push(down_tiles_row);
@@ -707,9 +776,10 @@ window.addEventListener('mousedown', function(event){
             var up_tiles_row = []
             for(var j = 0; j < cube.cube[i][cube.cube.length - 1].length; j++){
                 up_tiles_row.push(cube.tiles[i][cube.cube.length - 1][j][4]);
-                if(cube.tiles[i][cube.cube.length - 1][j][4] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[i][cube.cube.length - 1][j][4] == intersects_tiles[0].object){
                     side = 'up';
                     intersects = true;
+                    index = [i, cube.cube.length - 1, j];
                 }
             }
             up_tiles.push(up_tiles_row);
@@ -719,9 +789,10 @@ window.addEventListener('mousedown', function(event){
             var front_tiles_row = []
             for(var j = 0; j < cube.cube[i].length; j++){
                 front_tiles_row.push(cube.tiles[0][i][j][5]);
-                if(cube.tiles[0][i][j][5] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[0][i][j][5] == intersects_tiles[0].object){
                     side = 'front';
                     intersects = true;
+                    index = [0, i, j];
                 }
             }
             front_tiles.push(front_tiles_row);
@@ -731,9 +802,10 @@ window.addEventListener('mousedown', function(event){
             var back_tiles_row = []
             for(var j = 0; j < cube.cube[i].length; j++){
                 back_tiles_row.push(cube.tiles[cube.cube.length - 1][i][j][2]);
-                if(cube.tiles[cube.cube.length - 1][i][j][2] == intersects_tiles[0].object){
+                if(cube.tiles_hitboxes[cube.cube.length - 1][i][j][2] == intersects_tiles[0].object){
                     side = 'back';
                     intersects = true;
+                    index = [cube.cube.length - 1, i, j];
                 }
             }
             back_tiles.push(back_tiles_row);
@@ -746,36 +818,36 @@ window.addEventListener('mousedown', function(event){
 //    console.log(camera.rotation);
 //    console.log(camera);
 
-    intersects = false;
+//    intersects = false;
     
-    if(intersects_cubies.length > 0){
-        
-        for(var i=0; i<cube.cubies.length; i++){
-            for(var j=0; j<cube.cubies[i].length; j++){
-                for(var k=0; k<cube.cubies[i][j].length; k++){
-                    if(cube.cubies[i][j][k] == intersects_cubies[0].object){
-                        index = [i, j, k];
-                        intersects = true;
-                    }
-                }
-            }
-        }
-    }
-    if(intersects_tiles.length > 0 && !intersects){
-        
-        for(var i=0; i<cube.tiles.length; i++){
-            for(var j=0; j<cube.tiles[i].length; j++){
-                for(var k=0; k<cube.tiles[i][j].length; k++){
-                    for(var l=0; l<cube.tiles[i][j][k].length; l++){
-                        if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
-                            index = [i, j, k];
-                            intersects = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    if(intersects_cubies.length > 0){
+//        
+//        for(var i=0; i<cube.cubies.length; i++){
+//            for(var j=0; j<cube.cubies[i].length; j++){
+//                for(var k=0; k<cube.cubies[i][j].length; k++){
+//                    if(cube.cubies[i][j][k] == intersects_cubies[0].object){
+//                        index = [i, j, k];
+//                        intersects = true;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    if(intersects_tiles.length > 0 && !intersects){
+//        
+//        for(var i=0; i<cube.tiles.length; i++){
+//            for(var j=0; j<cube.tiles[i].length; j++){
+//                for(var k=0; k<cube.tiles[i][j].length; k++){
+//                    for(var l=0; l<cube.tiles[i][j][k].length; l++){
+//                        if(cube.tiles_hitboxes[i][j][k][l] == intersects_tiles[0].object){
+//                            index = [i, j, k];
+//                            intersects = true;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     if(intersects){
         controls.enableRotate = false;
@@ -786,15 +858,24 @@ window.addEventListener('mousedown', function(event){
 
     }
     
-});
+}
 
-window.addEventListener('mouseup', function(event){
-    if(index != null){
+function mouse_up(event){
+        resetMaterials();
+        if(index != null){
 
+            
+        raycaster.setFromCamera(mouse, camera);
+
+            
         var direction = raycaster.ray.direction;
         var origin = raycaster.ray.origin;
         
+            
+            
         var delta = [ray[0]['x'] - direction['x'], ray[0]['y'] - direction['y'], ray[0]['z'] - direction['z']];
+        console.log(delta)
+//        console.log(delta)
 //        console.log(side)
         if(side == 'left'){
             d1 = delta[0];          
@@ -934,36 +1015,12 @@ window.addEventListener('mouseup', function(event){
 
         cube.cubies[index[0]][index[1]][index[2]].material.color.setHex(0x000000);
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(cube.cubies_group.children);
+        const intersects = raycaster.intersectObjects(cube.tiles_hitboxes_group.children);
     //    const intersects2 = raycaster.intersectObjects(cube[3].children);
         if(intersects.length > 0){
             controls.enableRotate = false;
         }
-        
-//        if(max_index == 2){
-//
-//            if(delta[max_index] - camera_delta[max_index] > 0){
-//                cube.move_queue.push(['X', index[1], 0])
-//            }else if(delta[max_index] - camera_delta[max_index] < 0){
-//                cube.move_queue.push(['X', index[1], 1])
-//            }
-//        }
-//        else if(max_index == 0){
-//
-//            if(delta[max_index] - camera_delta[max_index] > 0){
-//                cube.move_queue.push(['Y', index[0], 1])
-//            }else if(delta[max_index] - camera_delta[max_index] < 0){
-//                cube.move_queue.push(['Y', index[0], 0])
-//            }
-//    }
-//        else if(max_index == 1){
-//
-//            if(delta[max_index] - camera_delta[max_index] > 0){
-//                cube.move_queue.push(['Z', index[2], 0])
-//            }else if(delta[max_index] - camera_delta[max_index] < 0){
-//                cube.move_queue.push(['Z', index[2], 1])
-//            }
-//    }
+
     index = null;
 }
 
@@ -973,7 +1030,7 @@ window.addEventListener('mouseup', function(event){
     controls.enableRotate = true;
 
     
-});
+}
 
 document.addEventListener('keypress', function(key){
     if(key.code == 'KeyQ'){
@@ -1029,28 +1086,15 @@ function resetMaterials(){
 function hover(){
     var intersects = false;
     raycaster.setFromCamera(mouse, camera);
-    const intersects_tiles = raycaster.intersectObjects(cube.tiles_group.children);
-    const intersects_cubies = raycaster.intersectObjects(cube.cubies_group.children);
-    if(intersects_cubies.length > 0){
+    const intersects_tiles_hitboxes = raycaster.intersectObjects(cube.tiles_hitboxes_group.children);
+    
+    if(intersects_tiles_hitboxes.length > 0 && !intersects){
         
-        for(var i=0; i<cube.cubies.length; i++){
-            for(var j=0; j<cube.cubies[i].length; j++){
-                for(var k=0; k<cube.cubies[i][j].length; k++){
-                    if(cube.cubies[i][j][k] == intersects_cubies[0].object){
-                            cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
-                        intersects = true;
-                    }
-                }
-            }
-        }
-    }
-    if(intersects_tiles.length > 0 && !intersects){
-        
-        for(var i=0; i<cube.tiles.length; i++){
-            for(var j=0; j<cube.tiles[i].length; j++){
-                for(var k=0; k<cube.tiles[i][j].length; k++){
-                    for(var l=0; l<cube.tiles[i][j][k].length; l++){
-                        if(cube.tiles[i][j][k][l] == intersects_tiles[0].object){
+        for(var i=0; i<cube.tiles_hitboxes.length; i++){
+            for(var j=0; j<cube.tiles_hitboxes[i].length; j++){
+                for(var k=0; k<cube.tiles_hitboxes[i][j].length; k++){
+                    for(var l=0; l<cube.tiles_hitboxes[i][j][k].length; l++){
+                        if(cube.tiles_hitboxes[i][j][k][l] == intersects_tiles_hitboxes[0].object){
                             cube.cubies[i][j][k].material.color.setHex(0xeeeeee);
                             intersects = true;
                         }
