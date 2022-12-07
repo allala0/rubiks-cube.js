@@ -57,6 +57,7 @@ OR FOR INTERACTIVE CUBE WHEN YOU USE ORBIT CONTROLS
 - [x] **Optimalisation: don't create cubies that are not visable (inside cube)**q
 - [x] **Bug fixes - connect tiles with cubie faces in term of mouse click detection**
 - [x] **Rounded edges of cubie stickers and cubies**
+- [ ] **Cube move take always same amount of time**
 - [ ] **Code cleanup and rewrite**
 - [ ] **Cube rotations function**
 - [ ] **AI solver**
