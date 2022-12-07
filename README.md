@@ -7,20 +7,46 @@
 
 ## Introduction
 
-Rubiks cube made in <a href='https://threejs.org/'>THREE.js</a>
+Rubiks cube made in <a href='https://threejs.org/'>three.js</a>
+
+## How to install
+
+    git clone https://github.com/allala0/rubiks-cube.js.git
+    npm install
+
+## How to build
+    npm run build
+
+## How to run examples
+
+    npm run example
+
+OR
+
+    npm run example-module
 
 ## How to use
+    import RubiksCube from './build/RubiksCube.module.js';
 
-- Clone this repo with:  ```git clone https://github.com/allala0/rubiks-cube.js``` 
-- Run this repo code on server ( You can use <a href='server.py'>server.py</a> to run it. )
+    const size = 3;
+    const cube = new RubiksCube(size);
+    scene.add(cube);
 
-## Server
+OR FOR INTERACTIVE CUBE
 
-<a href='server.py'>server.py</a> is a simple server implementation made in Python3. 
+    import RubiksCube from './build/RubiksCube.module.js';
 
-You can run it in terminal with ```server.py``` if you want to host it on localhost.
+    const size = 3;
+    const cube = new RubiksCube(sizes, camera, renderer.domElement);
+    scene.add(cube);
 
-If you want to specify ip and port use ```server.py ip:port``` ( you could provide only ip, in that case port 8080 will be used ).
+OR FOR INTERACTIVE CUBE WHEN YOU USE ORBIT CONTROLS
+
+    import RubiksCube from './build/RubiksCube.module.js';
+
+    const size = 3;
+    const cube = new RubiksCube(sizes, camera, renderer.domElement, controls);
+    scene.add(cube);
 
 ## TODO
 
