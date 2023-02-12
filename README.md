@@ -12,6 +12,7 @@ Rubiks cube made in <a href='https://threejs.org/'>three.js</a>
 ## How to install
 
     git clone https://github.com/allala0/rubiks-cube.js.git
+    cd rubiks-cube.js
     npm install
 
 ## How to build
